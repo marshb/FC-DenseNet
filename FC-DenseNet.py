@@ -131,7 +131,7 @@ class Network():
 
         self.output_layer = SoftmaxLayer(stack, n_classes)
 
-    ################################################################################################################
+    #####################################################################################
 
     def save(self, path):
         """ Save the weights """
@@ -185,3 +185,5 @@ class Network():
 
 if __name__ == '__main__':
     Network(input_shape=(5, 3, 224, 224)).summary()
+
+    
