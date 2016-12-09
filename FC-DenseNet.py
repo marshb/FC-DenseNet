@@ -152,7 +152,8 @@ class Network():
         def filter_function(layer):
             """ We only display the layers in the list below"""
             return np.any([isinstance(layer, layer_type) for layer_type in
-                           [InputLayer, Conv2DLayer, Pool2DLayer, Deconv2DLayer, ConcatLayer]])
+                           [InputLayer, Conv2DLayer, Pool2DLayer, 
+                            Deconv2DLayer, ConcatLayer]])
 
         layer_list = filter(filter_function, layer_list)
         output_shape_list = map(get_output_shape, layer_list)
@@ -175,9 +176,10 @@ class Network():
                     print('')
 
         print '\nNumber of Convolutional layers : {}'.format(
-            len(filter(lambda x: isinstance(x, Conv2DLayer) | isinstance(x, Deconv2DLayer), l
-                       ayer_list)))
-        print 'Number of parameters : {}'.format(np.sum(map(np.size, get_all_param_values(self.output_layer))))
+            len(filter(lambda x: isinstance(x, Conv2DLayer) | isinstance(x, Deconv2DLayer), 
+                       layer_list)))
+        print 'Number of parameters : {}'.format(np.sum(map(np.size, 
+                                                 get_all_param_values(self.output_layer))))
         print('-' * 75)
 
 
