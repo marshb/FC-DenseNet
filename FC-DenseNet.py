@@ -1,8 +1,12 @@
+
 import numpy as np
 import theano.tensor as T
 from lasagne.init import HeUniform
-from lasagne.layers import (InputLayer, ConcatLayer, Conv2DLayer, Pool2DLayer, Deconv2DLayer,
-                            get_all_param_values, set_all_param_values, get_output_shape, get_all_layers)
+
+from lasagne.layers import (InputLayer, ConcatLayer, Conv2DLayer, Pool2DLayer, 
+                            Deconv2DLayer, get_all_param_values, set_all_param_values, 
+                            get_output_shape, get_all_layers)
+
 from lasagne.nonlinearities import linear
 
 from layers import BN_ReLU_Conv, TransitionDown, TransitionUp, SoftmaxLayer
@@ -18,18 +22,24 @@ class Network():
                  n_layers_per_block=5,
                  dropout_p=0.2):
         """
-        This code implements the Fully Convolutional DenseNet described in https://arxiv.org/abs/1611.09326
-        The network consist of a downsampling path, where dense blocks and transition down are applied, followed
+        This code implements the Fully Convolutional DenseNet described in 
+        https://arxiv.org/abs/1611.09326
+        The network consist of a downsampling path, where dense blocks and 
+        transition down are applied, followed
         by an upsampling path where transition up and dense blocks are applied.
         Skip connections are used between the downsampling path and the upsampling path
-        Each layer is a composite function of BN - ReLU - Conv and the last layer is a softmax layer.
+        Each layer is a composite function of BN - ReLU - Conv and the last layer 
+        is a softmax layer.
 
-        :param input_shape: shape of the input batch. Only the first dimension (n_channels) is needed
+        :param input_shape: shape of the input batch. Only the first dimension (n_channels) 
+          is needed
         :param n_classes: number of classes
         :param n_filters_first_conv: number of filters for the first convolution applied
-        :param n_pool: number of pooling layers = number of transition down = number of transition up
+        :param n_pool: number of pooling layers = number of transition down = number of 
+          transition up
         :param growth_rate: number of new feature maps created by each layer in a dense block
-        :param n_layers_per_block: number of layers per block. Can be an int or a list of size 2 * n_pool + 1
+        :param n_layers_per_block: number of layers per block. Can be an int or 
+          a list of size 2 * n_pool + 1
         :param dropout_p: dropout rate applied after each convolution (0. for not using)
         """
 
@@ -42,7 +52,8 @@ class Network():
 
         # Theano variables
         self.input_var = T.tensor4('input_var', dtype='float32')  # input image
-        self.output_var = T.tensor4('output_var', dtype='float32')  # output of the network
+        self.output_var = T.tensor4('output_var', dtype='float32')  
+          # output of the network
         self.target_var = T.tensor4('target_var', dtype='int32')  # target
 
         #####################
@@ -51,8 +62,10 @@ class Network():
 
         inputs = InputLayer(input_shape, self.input_var)
 
-        # We perform a first convolution. All the features maps will be stored in the tensor called stack (the Tiramisu)
-        stack = Conv2DLayer(inputs, n_filters_first_conv, filter_size=3, pad='same', W=HeUniform(gain='relu'),
+        # We perform a first convolution. All the features maps 
+        #will be stored in the tensor called stack (the Tiramisu)
+        stack = Conv2DLayer(inputs, n_filters_first_conv, filter_size=3, 
+                            pad='same', W=HeUniform(gain='relu'),
                             nonlinearity=linear, flip_filters=False)
         # The number of feature maps in the stack is stored in the variable n_filters
         n_filters = n_filters_first_conv
@@ -71,7 +84,8 @@ class Network():
                 # And stack it : the Tiramisu is growing
                 stack = ConcatLayer([stack, l])
                 n_filters += growth_rate
-            # At the end of the dense block, the current stack is stored in the skip_connections list
+            # At the end of the dense block, the current stack is stored 
+            # in the skip_connections list
             skip_connection_list.append(stack)
 
             # Transition Down
@@ -83,7 +97,8 @@ class Network():
         #     Bottleneck    #
         #####################
 
-        # We store now the output of the next dense block in a list. We will only upsample these new feature maps
+        # We store now the output of the next dense block in a list. 
+        # We will only upsample these new feature maps
         block_to_upsample = []
 
         # Dense Block
@@ -154,12 +169,14 @@ class Network():
                 else:
                     input_shape = ''
 
-                print '{:<3} {:<15} {:<20} {:<20}'.format(i + 1, layer_name_function(layer), output_shape, input_shape)
+                print '{:<3} {:<15} {:<20} {:<20}'.format(i + 1, layer_name_function(layer), 
+                                                          output_shape, input_shape)
                 if isinstance(layer, Pool2DLayer) | isinstance(layer, Deconv2DLayer):
                     print('')
 
         print '\nNumber of Convolutional layers : {}'.format(
-            len(filter(lambda x: isinstance(x, Conv2DLayer) | isinstance(x, Deconv2DLayer), layer_list)))
+            len(filter(lambda x: isinstance(x, Conv2DLayer) | isinstance(x, Deconv2DLayer), l
+                       ayer_list)))
         print 'Number of parameters : {}'.format(np.sum(map(np.size, get_all_param_values(self.output_layer))))
         print('-' * 75)
 
